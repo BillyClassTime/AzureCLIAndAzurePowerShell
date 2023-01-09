@@ -79,6 +79,14 @@ Your web server wasn't accessible. To find out why, let's examine your current N
      --output tsv
    ```
 
+   Azure CLI on PowerShell
+
+   ```
+   az network nsg list --resource-group RG-MV2023b --query '[].name' --output tsv
+   ```
+
+   
+
    You see this:
 
    ```output
@@ -89,34 +97,42 @@ Your web server wasn't accessible. To find out why, let's examine your current N
 
 2. Run the following `az network nsg rule list` command to list the rules associated with the NSG named *my-vmNSG*:
 
-   Azure CLICopy
-
    ```azurecli
    az network nsg rule list \
-     --resource-group [sandbox resource group name] \
-     --nsg-name my-vmNSG
+     --resource-group RG-MV2023b \
+     --nsg-name my-vm20NSG
    ```
 
    You see a large block of text in JSON format in the output. In the next step, you'll run a similar command that makes this output easier to read.
+
+   ```
+   az network nsg rule list --resource-group RG-MV2023b --nsg-name my-vm20NSG
+   ```
+
+   
 
 3. Run the `az network nsg rule list` command a second time. This time, use the `--query` argument to retrieve only the name, priority, affected ports, and access (**Allow** or **Deny**) for each rule. The `--output` argument formats the output as a table so that it's easy to read.
 
    ```azurecli
    az network nsg rule list \
-     --resource-group [sandbox resource group name] \
-     --nsg-name my-vmNSG \
+     --resource-group RG-MV2023b \
+     --nsg-name my-vm20NSG \
      --query '[].{Name:name, Priority:priority, Port:destinationPortRange, Access:access}' \
      --output table
    ```
 
+   ```
+   az network nsg rule list --resource-group RG-MV2023b --nsg-name my-vm20NSG --query '[].{Name:name, Priority:priority, Port:destinationPortRange, Access:access}' --output table
+   ```
+   
    You see this:
-
+   
    ```output
    Name              Priority    Port    Access
    -----------------  ----------  ------  --------
    default-allow-ssh  1000        22      Allow
    ```
-
+   
    You see the default rule, *default-allow-ssh*. This rule allows inbound connections over port 22 (SSH). SSH (Secure Shell) is a protocol that's used on Linux to allow administrators to access the system remotely. The priority of this rule is 1000. Rules are processed in priority order, with lower numbers processed before higher numbers.
 
 By default, a Linux VM's NSG allows network access only on port 22. This enables administrators to access the system. You need to also allow inbound connections on port 80, which allows access over HTTP.
@@ -127,12 +143,10 @@ Here, you create a network security rule that allows inbound access on port 80 (
 
 1. Run the following `az network nsg rule create` command to create a rule called *allow-http* that allows inbound access on port 80:
 
-   Azure CLICopy
-
    ```azurecli
    az network nsg rule create \
-     --resource-group [sandbox resource group name] \
-     --nsg-name my-vmNSG \
+     --resource-group RG-MV2023b \
+     --nsg-name my-vm20NSG \
      --name allow-http \
      --protocol tcp \
      --priority 100 \
@@ -140,29 +154,37 @@ Here, you create a network security rule that allows inbound access on port 80 (
      --access Allow
    ```
 
+   ```
+   az network nsg rule create --resource-group RG-MV2023b --nsg-name my-vm20NSG --name allow-http --protocol tcp --priority 100 --destination-port-range 80 --access Allow
+   ```
+
+   
+
    For learning purposes, here you set the priority to 100. In this case, the priority doesn't matter. You would need to consider the priority if you had overlapping port ranges.
 
 2. To verify the configuration, run `az network nsg rule list` to see the updated list of rules:
 
-   Azure CLICopy
-
    ```azurecli
    az network nsg rule list \
-     --resource-group [sandbox resource group name] \
-     --nsg-name my-vmNSG \
+     --resource-group  RG-MV2023b \
+     --nsg-name my-vm20NSG \
      --query '[].{Name:name, Priority:priority, Port:destinationPortRange, Access:access}' \
      --output table
    ```
+   
+   ```
+   az network nsg rule list --resource-group RG-MV2023b --nsg-name my-vm20NSG --query '[].{Name:name, Priority:priority, Port:destinationPortRange, Access:access}' --output table
+   ```
+
+   
 
    You see this both the *default-allow-ssh* rule and your new rule, *allow-http*:
-
-   OutputCopy
-
+   
    ```output
    Name              Priority    Port    Access
    -----------------  ----------  ------  --------
    default-allow-ssh  1000        22      Allow
-   allow-http        100        80      Allow
+   allow-http         100         80      Allow
    ```
 
 ## Task 4: Access your web server again
