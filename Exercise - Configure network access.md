@@ -218,3 +218,22 @@ After you update the NSG, it may take a few moments before the updated rules pro
    ![A screenshot of a web browser showing the home page from the web server. The home page displays a welcome message.](https://learn.microsoft.com/en-us/training/wwl-azure/describe-azure-compute-networking-services/media/browser-request-successful-df21c6f1.png)
 
 Nice work. In practice, you can create a standalone network security group that includes the inbound and outbound network access rules you need. If you have multiple VMs that serve the same purpose, you can assign that NSG to each VM at the time you create it. This technique enables you to control network access to multiple VMs under a single, central set of rules.
+
+Deleting the Resources with both AzureCLI and Azure PowerShell
+
+You can delete the Resources Groups with the following commands:
+
+Azure CLI
+
+```
+$listarg =  az group list --query "[? contains(name,'RG')][].{name:name}" -o tsv
+```
+```
+foreach ($i in $listarg ) { az group delete -n $i --yes --no-wait }
+```
+
+Azure PowerShell
+
+```
+Get-AzResourceGroup -Name RG* | Remove-AzResourceGroup -AsJob -Force
+```
